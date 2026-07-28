@@ -11,7 +11,7 @@ export default function Contact() {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
       setStatus('error');
@@ -21,16 +21,37 @@ export default function Contact() {
 
     setStatus('submitting');
 
-    // Simulate server submission action
-    setTimeout(() => {
-      setStatus('success');
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      confetti({
-        particleCount: 100,
-        spread: 80,
-        origin: { y: 0.7 }
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: 'c41aa6f9-36e2-4fb8-b950-d60721ded329',
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject || 'New message from portfolio contact form',
+          message: formData.message,
+        }),
       });
-    }, 1200);
+
+      const result = await response.json();
+
+      if (result.success) {
+        setStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        confetti({
+          particleCount: 100,
+          spread: 80,
+          origin: { y: 0.7 }
+        });
+      } else {
+        setStatus('error');
+        setErrorMsg(result.message || 'Something went wrong. Please try again.');
+      }
+    } catch {
+      setStatus('error');
+      setErrorMsg('Network error. Please check your connection and try again.');
+    }
   };
 
   return (
