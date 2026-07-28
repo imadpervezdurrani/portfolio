@@ -20,6 +20,7 @@ export default function Contact() {
     }
 
     setStatus('submitting');
+    setErrorMsg('');
 
     try {
       const response = await fetch('https://api.web3forms.com/submit', {
@@ -27,10 +28,12 @@ export default function Contact() {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           access_key: 'c41aa6f9-36e2-4fb8-b950-d60721ded329',
+          from_name: formData.name,
           name: formData.name,
           email: formData.email,
           subject: formData.subject || 'New message from portfolio contact form',
           message: formData.message,
+          botcheck: false,
         }),
       });
 
@@ -45,10 +48,12 @@ export default function Contact() {
           origin: { y: 0.7 }
         });
       } else {
+        console.error('Web3Forms submission failed:', result);
         setStatus('error');
         setErrorMsg(result.message || 'Something went wrong. Please try again.');
       }
-    } catch {
+    } catch (error) {
+      console.error('Form submission error:', error);
       setStatus('error');
       setErrorMsg('Network error. Please check your connection and try again.');
     }
