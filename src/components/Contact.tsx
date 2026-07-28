@@ -208,6 +208,9 @@ export default function Contact() {
                 />
               </div>
 
+              {/* Honeypot field for spam protection - hidden from users */}
+              <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} />
+
               <button
                 type="submit"
                 disabled={status === 'submitting'}
